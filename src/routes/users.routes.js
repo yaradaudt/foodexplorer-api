@@ -1,11 +1,11 @@
 const { Router } = require("express")
 
+const UsersController = require("../controllers/UsersController") // it's a class, so it needs to be instanced.
+
 const usersRoutes = Router()
 
-usersRoutes.post("/", (request, response) => {
-    const { name, email, password } = request.body
+const usersController = new UsersController()
 
-    response.json({ name, email, password })
-})
+usersRoutes.post("/", usersController.create)
 
 module.exports = usersRoutes
