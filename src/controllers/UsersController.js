@@ -2,7 +2,7 @@ class UsersController { // 5 methods to each controller => index (GET), show (GE
     create(request, response) {
         const { name, email, password } = request.body
 
-        response.json({ name, email, password })
+        response.status(201).json({ name, email, password })
     }
 }
 
