@@ -1,5 +1,5 @@
+const { hash } = require("bcryptjs")
 const AppError =  require("../utils/AppError")
-
 const sqliteConnection = require("../database/sqlite")
 
 class UsersController { // 5 methods to each controller => index (GET), show (GET), Create (POST), Update (PUT), delete (DELETE).
@@ -13,9 +13,11 @@ class UsersController { // 5 methods to each controller => index (GET), show (GE
             throw new AppError("Este e-mail já está em uso.")
         }
 
+        const hashedPassword = await hash(password, 8)
+
         await database.run(
             "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
-            [name, email, password]
+            [name, email, hashedPassword]
         )
 
         return response.status(201).json()
