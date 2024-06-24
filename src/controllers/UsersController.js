@@ -2,6 +2,12 @@ const { hash, compare } = require("bcryptjs")
 const AppError =  require("../utils/AppError")
 const sqliteConnection = require("../database/sqlite")
 
+function validatePasswordLength(password) {
+    if(password.length < 6) {
+        throw new AppError("A senha precisa ter no mínimo 6 caracteres.")
+    }
+}
+
 class UsersController { // 5 methods to each controller => index (GET), show (GET), Create (POST), Update (PUT), delete (DELETE).
     async create(request, response) {
         const { name, email, password } = request.body
@@ -13,9 +19,7 @@ class UsersController { // 5 methods to each controller => index (GET), show (GE
             throw new AppError("Este e-mail já está em uso.")
         }
 
-        if(password.length < 6) {
-            throw new AppError("A senha precisa ter no mínimo 6 caracteres.")
-        }
+        validatePasswordLength(password)
 
         const hashedPassword = await hash(password, 8)
 
@@ -61,11 +65,8 @@ class UsersController { // 5 methods to each controller => index (GET), show (GE
             user.password = await hash(password,8)
             
         }
-
-        if(password.length < 6) {
-            throw new AppError("A senha precisa ter no mínimo 6 caracteres.")
-        }
-
+        
+        validatePasswordLength(password)
 
         await database.run(`
         UPDATE users SET
