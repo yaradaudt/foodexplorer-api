@@ -9,6 +9,7 @@ exports.up = knex => knex.schema.createTable("dishes", table => {
     table.integer("created_by").references("id").inTable("users");
     table.integer("updated_by").references("id").inTable("users");
   
+    
     table.timestamp("created_at").defaultTo(knex.fn.now());
     table.timestamp("updated_at").defaultTo(knex.fn.now());
   });
