@@ -5,7 +5,7 @@ exports.up = knex => knex.schema.createTable("orders", table => {
     table.decimal("price", 10, 2).notNullable();
     table.text("payment_method").notNullable();
 
-    table.integer("ordered_by").references("id").inTable("users");
+    table.integer("user_id").references("id").inTable("users");
     table.timestamp("created_at").defaultTo(knex.fn.now());
 })
 
