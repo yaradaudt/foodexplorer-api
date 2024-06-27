@@ -27,7 +27,7 @@ class DishesController {
     response.json()
   }
 
-  async show(request, response){
+  async show(request, response) {
     const { id } = request.params
 
     const dish = await knex("dishes").where({ id }).first()
@@ -37,6 +37,14 @@ class DishesController {
       ...dish,
       ingredients
     })
+  }
+
+  async delete(request,response) {
+    const { id } = request.params
+
+    await knex("dishes").where({ id }).delete()
+
+    return response.json()
   }
 }
 
