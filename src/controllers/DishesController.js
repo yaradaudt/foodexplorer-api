@@ -46,6 +46,14 @@ class DishesController {
 
     return response.json()
   }
+
+  async index(request, response) {
+    const { user_id } = request.query
+    const dishes = await knex("dishes").where({ user_id }).orderBy("name")
+
+    return response.json({
+      ...dishes})
+  }
 }
 
 module.exports = DishesController
