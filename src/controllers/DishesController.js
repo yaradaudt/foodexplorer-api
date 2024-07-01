@@ -2,11 +2,11 @@ const knex = require("../database/knex");
 
 class DishesController {
   async create(request, response) {
-    const { name, description, category, price, image, ingredients } = request.body
+    const { title, description, category, price, image, ingredients } = request.body
     const { user_id } = request.params
 
     const [dish_id] = await knex("dishes").insert({
-      name,
+      title,
       description,
       category,
       price,
@@ -14,10 +14,10 @@ class DishesController {
       user_id
     })
 
-    const ingredientsInsert = ingredients.map(ingredientName => {
+    const ingredientsInsert = ingredients.map(name => {
       return {
         dish_id,
-        name: ingredientName,
+        name,
         user_id
       }
     })
@@ -48,14 +48,44 @@ class DishesController {
   }
 
   async index(request, response) {
-    const { name, user_id } = request.query
-    const dishes = await knex("dishes")
-    .where({ user_id })
-    .whereLike("name", `%${name}%`)
-    .orderBy("name")
+    const { title, user_id, ingredients } = request.query
 
-    return response.json({
-      ...dishes})
+    let dishes
+
+    if(ingredients) {
+      const filterIngredients = ingredients.split(',').map(ingredient => ingredient.trim())
+      
+      dishes = await knex("ingredients")
+        .select([
+          "dishes.id",
+          "dishes.title",
+          "dishes.user_id",
+        ])
+        .where("dishes.user_id", user_id)
+        .whereLike("dishes.title", `%${title}%`)
+        .whereIn("name", filterIngredients)
+        .innerJoin("dishes", "dishes.id", "ingredients.dish_id")
+        .orderBy("dishes.title")
+
+    } else {
+      dishes = await knex("dishes")
+      .where({ user_id })
+      .whereLike("title", `%${title}%`)
+      .orderBy("title")
+    }
+
+    const restaurantIngredients = await knex("ingredients").where({ user_id })
+    const dishesWithIngredients = dishes.map(dish => {
+      const dishIngredients = restaurantIngredients.filter(ingredient => ingredient.dish_id === dish.id)
+
+      return {
+        ...dish,
+        ingredients: dishIngredients
+      }
+    })
+
+
+    return response.json(dishesWithIngredients)
   }
 }
 
