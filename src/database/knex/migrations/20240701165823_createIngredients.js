@@ -4,8 +4,6 @@ exports.up = knex => knex.schema.createTable("ingredients", table => {
   
     table.integer("dish_id").references("id").inTable("dishes").onDelete("CASCADE");
     table.integer("user_id").references("id").inTable("users");
-  
-    table.integer("created_by").references("id").inTable("users");
     table.timestamp("created_at").defaultTo(knex.fn.now());
   });
   
