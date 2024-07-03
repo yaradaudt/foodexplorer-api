@@ -34,6 +34,14 @@ class FavoritesController {
               return response.status(500).json({ message: "Erro ao listar os favoritos." });
             }
     }
+
+    async delete(request,response) {
+        const { id } = request.params
+    
+        await knex("favorites").where({ id }).delete()
+    
+        return response.json()
+      }
 }
         
 module.exports = FavoritesController
