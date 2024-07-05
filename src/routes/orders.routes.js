@@ -7,6 +7,6 @@ const ordersRoutes = Router()
 const ordersController = new OrdersController()
 
 ordersRoutes.post("/:user_id", ordersController.create)
-//ordersRoutes.put("/:id", ordersController.update)
+ordersRoutes.get("/:id", ordersController.show);
 
 module.exports = ordersRoutes
