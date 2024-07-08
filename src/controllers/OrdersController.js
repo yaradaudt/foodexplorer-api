@@ -59,6 +59,49 @@ class OrdersController {
       }
     
     
+    async index(request, response) {
+        try {
+            const { user_id } = request.params;
+
+            const orders = await knex("orders")
+                .select([
+                    "orders.id", 
+                    "orders.status", 
+                    "orders.price", 
+                    "orders.payment_method", 
+                    "orders.created_at"
+                ])
+                .where({ user_id })
+                .orderBy("orders.created_at", "desc")
+
+            
+            const ordersWithItems = orders.map(async (order) => {
+                const orderItems = await knex("order_items")
+                    .select([
+                    "order_items.id", 
+                    "order_items.dish_id", 
+                    "order_items.quantity", 
+                    "order_items.price", 
+                    "dishes.title as dish_title"])
+                    .innerJoin("dishes", "dishes.id", "order_items.dish_id")
+                    .where({ order_id: order.id });
+
+                    return {
+                        ...order,
+                        orderItems
+                    }
+                })
+
+            return response.status(200).json(ordersWithItems)
+
+        } catch (error) {
+            console.error(error);
+            return response.status(500).json({ message: "Error retrieving orders" });
+        }
+    }
+
+    // index close to functional but not finished. i'll come back when admin's permission is created.
+    
 }
 
 module.exports = OrdersController
