@@ -8,5 +8,7 @@ const ordersController = new OrdersController()
 
 ordersRoutes.post("/:user_id", ordersController.create)
 ordersRoutes.get("/:id", ordersController.show);
+ordersRoutes.delete("/:id", ordersController.delete)
+
 
 module.exports = ordersRoutes
