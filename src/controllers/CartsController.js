@@ -52,6 +52,56 @@ class CartsController { // regular user only
 
         response.status(200).json()
     }
+
+    async delete(request, response) {
+        const { user_id } = request.params
+    
+        await knex("cart").where({ user_id }).delete()
+    
+        return response.json()
+    }
+
+    async show(request, response) {
+        const { user_id, dish_id } = request.params
+
+        const cart = await knex("cart").where({ user_id }).first()
+            if (!cart) {
+                return response.status(404).json({ message: "Carrinho não encontrado." })
+            }
+
+            const cartItem = await knex("cart_items")
+                .where({ cart_id: cart.id, dish_id })
+                .join("dishes", "cart_items.dish_id", "dishes.id")
+                .select([
+                    "cart_items.dish_id",
+                    "dishes.title as dish_title",
+                    "cart_items.quantity",
+                    "cart_items.price"
+                ])
+                .first()
+
+            response.status(200).json(cartItem)
+    }
+
+    async index(request, response) {
+        const { user_id } = request.params
+        const cart = await knex("cart").where({ user_id }).first()
+            if (!cart) {
+                return response.status(404).json({ message: "Carrinho não encontrado" })
+            }
+
+            const cartItems = await knex("cart_items")
+                .where({ cart_id: cart.id })
+                .join("dishes", "cart_items.dish_id", "dishes.id")
+                .select([
+                    "cart_items.dish_id",
+                    "dishes.title as dish_title",
+                    "cart_items.quantity",
+                    "cart_items.price"
+                ])
+
+            response.status(200).json({ cart, items: cartItems })
+    }
 }
 
 module.exports = CartsController
