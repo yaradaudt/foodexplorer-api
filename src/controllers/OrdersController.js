@@ -28,6 +28,8 @@ class OrdersController {
         response.status(201).json()
     }
 
+    // adicionar update para usuario admin poder alterar status: em andamento, confirmado, saiu para entrega, finalizado
+
     async show(request, response) {
             const { id } = request.params;
 
