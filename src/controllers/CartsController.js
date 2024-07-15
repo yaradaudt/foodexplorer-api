@@ -2,8 +2,8 @@ const knex = require("../database/knex")
 
 class CartsController { // regular user only
     async create(request, response) {
-        const { dish_id, quantity } = request.body;
-        const { user_id } = request.params;
+        const { dish_id, quantity } = request.body
+        const user_id = request.user.id
 
             let cart = await knex("cart").where({ user_id }).first()
             
@@ -28,7 +28,8 @@ class CartsController { // regular user only
     }
 
     async update(request, response) {
-        const { user_id, dish_id } = request.params
+        const user_id = request.user.id
+        const { dish_id } = request.params
         const { quantity } = request.body
 
         const cart = await knex("cart").where({ user_id }).first()
@@ -54,7 +55,7 @@ class CartsController { // regular user only
     }
 
     async delete(request, response) {
-        const { user_id } = request.params
+        const  user_id  = request.user.id
     
         await knex("cart").where({ user_id }).delete()
     
@@ -62,7 +63,8 @@ class CartsController { // regular user only
     }
 
     async show(request, response) {
-        const { user_id, dish_id } = request.params
+        const { dish_id } = request.params
+        const user_id = request.user.id
 
         const cart = await knex("cart").where({ user_id }).first()
             if (!cart) {
@@ -84,7 +86,7 @@ class CartsController { // regular user only
     }
 
     async index(request, response) {
-        const { user_id } = request.params
+        const user_id = request.user.id
         const cart = await knex("cart").where({ user_id }).first()
             if (!cart) {
                 return response.status(404).json({ message: "Carrinho não encontrado" })

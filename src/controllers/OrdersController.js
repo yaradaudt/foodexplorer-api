@@ -28,7 +28,7 @@ class OrdersController {
         response.status(201).json()
     }
 
-    // adicionar update para usuario admin poder alterar status: em andamento, confirmado, saiu para entrega, finalizado
+    // adicionar update para usuario admin poder alterar status: em andamento, confirmado, saiu para entrega, finalizado OKOK ACABEI DE VER OBG FOFA 
 
     async show(request, response) {
             const { id } = request.params;

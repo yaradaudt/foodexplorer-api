@@ -3,19 +3,19 @@ const knex = require("../database/knex")
 class FavoritesController {
     async create (request, response) {
         const { dish_id } = request.body
-        const { user_id } = request.params
+        const user_id = request.user.id
 
         const favorite = await knex("favorites").insert({
         dish_id,
         user_id
         })
 
-        return response.status(201).json(favorite)
+        return response.status(201).json({favorite, dish_id})
     }
 
     async index(request, response) {
         try {
-            const { user_id } = request.query
+            const user_id = request.user.id
 
             const favorites = await knex("favorites")
                 .select([
