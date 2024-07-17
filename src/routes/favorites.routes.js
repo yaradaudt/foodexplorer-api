@@ -6,7 +6,6 @@ const ensureAuthenticated = require("../middlewares/ensureAuthenticated")
 const favoritesRoutes = Router()
 const favoritesController = new FavoritesController()
 
-
 favoritesRoutes.use(ensureAuthenticated)
 
 favoritesRoutes.get("/", favoritesController.index)

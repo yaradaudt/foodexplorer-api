@@ -55,7 +55,7 @@ class CartsController { // regular user only
     }
 
     async delete(request, response) {
-        const  user_id  = request.user.id
+        const user_id  = request.user.id
     
         await knex("cart").where({ user_id }).delete()
     
@@ -80,7 +80,7 @@ class CartsController { // regular user only
                     "cart_items.quantity",
                     "cart_items.price"
                 ])
-                .first()
+                .first() // garante que apenas o primeiro resultado irá aparecer.
 
             response.status(200).json(cartItem)
     }

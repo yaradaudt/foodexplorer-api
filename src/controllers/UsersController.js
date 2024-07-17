@@ -1,6 +1,6 @@
 const { hash, compare } = require("bcryptjs")
 const AppError =  require("../utils/AppError")
-const sqliteConnection = require("../database/sqlite")
+const knex = require("../database/knex")
 
 function validatePasswordLength(password) {
     if(password.length < 6) {
@@ -10,12 +10,11 @@ function validatePasswordLength(password) {
 
 class UsersController { // 5 methods to each controller => index (GET), show (GET), Create (POST), Update (PUT), delete (DELETE).
     async create(request, response) {
-        const { name, email, password, is_admin = false } = request.body
+        const { name, email, password } = request.body
 
-        const database = await sqliteConnection()
-        const checkUserExists = await database.get("SELECT * FROM users WHERE email = (?)", [email])
+        const checkUserExists = await knex("users").where({ email })
 
-        if(checkUserExists){
+        if(checkUserExists.length > 0){
             throw new AppError("Este e-mail já está em uso.")
         }
 
@@ -23,16 +22,16 @@ class UsersController { // 5 methods to each controller => index (GET), show (GE
 
         const hashedPassword = await hash(password, 8)
 
-        await database.run(
-            "INSERT INTO users (name, email, password, is_admin) VALUES (?, ?, ?, ?)",
-            [name, email, hashedPassword, is_admin]
-        )
+        await knex("users").insert({ name, email, password: hashedPassword })
 
         return response.status(201).json()
     }
 
+    //ATUALIZAR DE ACORDO COM O USO DO KNEX COMO DATABASE AO INVES DO SQLITE NA CRIAÇÃO DAS TABELAS
+
+
     async update(request, response) {
-        const { name, email, password, old_password, is_admin } = request.body
+        const { name, email, password, old_password } = request.body
         const user_id  = request.user.id
 
         const database = await sqliteConnection()

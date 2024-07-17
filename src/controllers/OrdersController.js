@@ -3,7 +3,7 @@ const knex = require("../database/knex")
 class OrdersController {
     async create(request, response) {
         const { status, price, payment_method, order_items } = request.body
-        const { user_id } = request.params
+        const user_id = request.user.id
 
         const [order_id] = await knex("orders").insert({
             status,
@@ -63,7 +63,7 @@ class OrdersController {
     
     async index(request, response) {
         try {
-            const { user_id } = request.params;
+            const user_id = request.user.id
 
             const orders = await knex("orders")
                 .select([
