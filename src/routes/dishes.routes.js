@@ -7,11 +7,10 @@ const verifyUserAuthorization = require("../middlewares/verifyUserAuthorization"
 const dishesRoutes = Router()
 const dishesController = new DishesController()
 
-dishesRoutes.post("/", ensureAuthenticated, verifyUserAuthorization("admin"), dishesController.create)//admin
-dishesRoutes.get("/:id", dishesController.show)//all
 dishesRoutes.get("/", dishesController.index)//all
+dishesRoutes.post("/", ensureAuthenticated, verifyUserAuthorization("admin"), dishesController.create)//admin
 dishesRoutes.delete("/:id", ensureAuthenticated, verifyUserAuthorization("admin"), dishesController.delete)//admin
-//update = true // admin
-
+dishesRoutes.put("/:id", ensureAuthenticated, verifyUserAuthorization("admin"), dishesController.update)//admin
+dishesRoutes.get("/:id", dishesController.show)//all
 
 module.exports = dishesRoutes

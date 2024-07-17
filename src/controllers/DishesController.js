@@ -39,6 +39,41 @@ class DishesController {
     })
   }
 
+  async update(request, response) {
+    try {
+      const { id } = request.params
+      const { title, description, category, price, image, ingredients } = request.body
+      const user_id = request.user.id
+  
+      await knex("dishes").where({ id }).update({
+        title,
+        description,
+        category,
+        price,
+        image,
+        user_id,
+        updated_at: knex.fn.now()
+      })
+  
+      await knex("ingredients").where({ dish_id: id }).delete()
+  
+      const ingredientsInsert = ingredients.map(name => {
+        return {
+          dish_id: id,
+          name,
+          user_id
+        }
+      })
+  
+      await knex("ingredients").insert(ingredientsInsert);
+  
+      response.json({ message: "Prato atualizado com sucesso" });
+    } catch (error) {
+      console.error("Erro ao atualizar prato", error);
+      response.status(500).json({ error: "Erro ao atualizar o prato" });
+    }
+  }
+
   async delete(request,response) {
     const { id } = request.params
 
@@ -46,7 +81,7 @@ class DishesController {
 
     return response.json()
   }
-
+  
   async index(request, response) {
     try {
     const { title, ingredients } = request.query
@@ -122,3 +157,4 @@ class DishesController {
 }
 
 module.exports = DishesController
+
