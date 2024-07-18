@@ -30,14 +30,25 @@ class OrdersController {
 
     async show(request, response) {
             const { id } = request.params
+            const user_id = request.user.id
+            const user_role = request.user.role
 
-            const order = await knex("orders")
-                .select("id", "status", "price", "payment_method")
-                .where({ id })
-                .first()
+            let order 
+            
+            if(user_role === "admin") {
+                order = await knex("orders")
+                    .select("id", "status", "price", "payment_method")
+                    .where({ id })
+                    .first()
+            } else {
+                order = await knex("orders")
+                    .select("id", "status", "price", "payment_method")
+                    .where({ id, user_id })
+                    .first();
+            }
 
             if (!order) {
-                return response.status(404).json({ message: "Order not found" })
+                return response.status(404).json({ message: "Pedido não encontrado" })
             }
 
             const orderItems = await knex("order_items")
@@ -68,7 +79,7 @@ class OrdersController {
 
             return response.json({ message: "Pedido atualizado com sucesso." })
         } catch (error) {
-            console.error("Error updating order", error)
+            console.error("Erro atualizando pedido", error)
             return response.status(500).json({ message: "Erro atualizando pedido." })
         }
     }
@@ -85,20 +96,34 @@ class OrdersController {
     async index(request, response) {
         try {
             const user_id = request.user.id
+            const user_role = request.user.role
 
-            const orders = await knex("orders")
+            let orders
+
+            if(user_role === "admin") {
+                orders = await knex("orders")
+                    .select([
+                        "orders.id", 
+                        "orders.status", 
+                        "orders.price", 
+                        "orders.payment_method", 
+                        "orders.created_at"
+                    ])
+                    .orderBy("orders.created_at", "desc")
+            } else {
+                orders = await knex("orders")
                 .select([
                     "orders.id", 
                     "orders.status", 
                     "orders.price", 
                     "orders.payment_method", 
                     "orders.created_at"
-                ])
-                .where({ user_id })
-                .orderBy("orders.created_at", "desc")
-
+          ])
+          .where({ user_id })
+          .orderBy("orders.created_at", "desc")
+      }
             
-            const ordersWithItems = orders.map(async (order) => {
+            const ordersWithItems = await Promise.all(orders.map(async (order) => {
                 const orderItems = await knex("order_items")
                     .select([
                     "order_items.id", 
@@ -113,7 +138,7 @@ class OrdersController {
                         ...order,
                         orderItems
                     }
-                })
+                }))
 
             return response.status(200).json(ordersWithItems)
 
@@ -122,8 +147,6 @@ class OrdersController {
             return response.status(500).json({ message: "Erro ao listar pedidos." })
         }
     }
-
-    // index close to functional but not finished. i'll come back when admin's permission is created.
     
 }
 
