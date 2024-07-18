@@ -2,6 +2,7 @@ const { Router } = require("express")
 
 const OrdersController = require("../controllers/OrdersController")
 const ensureAuthenticated = require("../middlewares/ensureAuthenticated")
+const verifyUserAuthorization = require("../middlewares/verifyUserAuthorization")
 
 const ordersRoutes = Router()
 
@@ -11,9 +12,9 @@ ordersRoutes.use(ensureAuthenticated)
 
 ordersRoutes.get("/", ordersController.index)
 ordersRoutes.post("/", ordersController.create)
-ordersRoutes.get("/:id", ordersController.show);
-ordersRoutes.delete("/:id", ordersController.delete)
-//UPDATE coming soon
+ordersRoutes.put("/:id", verifyUserAuthorization("admin"), ordersController.update)
+ordersRoutes.delete("/:id", verifyUserAuthorization("admin"), ordersController.delete)
+ordersRoutes.get("/:id", ordersController.show)
 
 
 module.exports = ordersRoutes

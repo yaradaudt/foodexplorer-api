@@ -21,35 +21,56 @@ class OrdersController {
             }
         })
         
-        const resolvedOrderItems = await Promise.all(orderItemsInsert);
+        const resolvedOrderItems = await Promise.all(orderItemsInsert)
 
         await knex("order_items").insert(resolvedOrderItems)
     
         response.status(201).json()
     }
 
-    // adicionar update para usuario admin poder alterar status: em andamento, confirmado, saiu para entrega, finalizado OKOK ACABEI DE VER OBG FOFA 
-
     async show(request, response) {
-            const { id } = request.params;
+            const { id } = request.params
 
             const order = await knex("orders")
                 .select("id", "status", "price", "payment_method")
                 .where({ id })
-                .first();
+                .first()
 
             if (!order) {
-                return response.status(404).json({ message: "Order not found" });
+                return response.status(404).json({ message: "Order not found" })
             }
 
             const orderItems = await knex("order_items")
                 .select("id", "dish_id", "quantity", "price")
-                .where({ order_id: id });
+                .where({ order_id: id })
 
             return response.json({
                 ...order,
                 orderItems
-            });
+            })
+    }
+
+    async update(request, response) {
+        try {
+            const { id } = request.params
+            const { status } = request.body
+
+            const order = await knex("orders").where({ id }).first()
+
+            if(!order){
+                return response.status(404).json({ message: "Pedido não encontrado." })
+
+            }
+
+            await knex("orders").where({ id }).update({
+                status,
+            })
+
+            return response.json({ message: "Pedido atualizado com sucesso." })
+        } catch (error) {
+            console.error("Error updating order", error)
+            return response.status(500).json({ message: "Erro atualizando pedido." })
+        }
     }
 
     async delete(request,response) {
@@ -58,7 +79,7 @@ class OrdersController {
         await knex("orders").where({ id }).delete()
     
         return response.json()
-      }
+    }
     
     
     async index(request, response) {
@@ -86,7 +107,7 @@ class OrdersController {
                     "order_items.price", 
                     "dishes.title as dish_title"])
                     .innerJoin("dishes", "dishes.id", "order_items.dish_id")
-                    .where({ order_id: order.id });
+                    .where({ order_id: order.id })
 
                     return {
                         ...order,
@@ -98,7 +119,7 @@ class OrdersController {
 
         } catch (error) {
             console.error(error);
-            return response.status(500).json({ message: "Error retrieving orders" });
+            return response.status(500).json({ message: "Erro ao listar pedidos." })
         }
     }
 
