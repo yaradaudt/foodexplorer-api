@@ -27,38 +27,35 @@ class UsersController { // 5 methods to each controller => index (GET), show (GE
         return response.status(201).json()
     }
 
-    //ATUALIZAR DE ACORDO COM O USO DO KNEX COMO DATABASE AO INVES DO SQLITE NA CRIAÇÃO DAS TABELAS
-
 
     async update(request, response) {
         const { name, email, password, old_password } = request.body
-        const user_id  = request.user.id
+        const user_id = request.user.id
 
-        const database = await sqliteConnection()
-        const user = await database.get("SELECT * FROM users WHERE id = (?)", [user_id])
+        const user = await knex("users").where({ id: user_id }).first()
 
-        if(!user) {
-            throw new AppError("Usuário não encontrado.")
+        if (!user) {
+            throw new AppError("Usuário não encontrado.");
         }
 
-        const userWithUpdatedEmail = await database.get("SELECT * FROM users WHERE email = (?)", [email])
+        const userWithUpdatedEmail = await knex("users").where({ email }).first()
 
-        if(userWithUpdatedEmail && userWithUpdatedEmail.id !== user.id) {
+        if (userWithUpdatedEmail && userWithUpdatedEmail.id !== user.id) {
             throw new AppError("Este e-mail já está em uso.")
         }
 
         user.name = name ?? user.name
         user.email = email ?? user.email
 
-        if(password) {
+        if (password) {
             validatePasswordLength(password)
 
-            if(!old_password) {
+            if (!old_password) {
                 throw new AppError("Você precisa informar a senha antiga para definir uma nova senha.")
             }
 
             const checkOldPassword = await compare(old_password, user.password)
-        
+
             if (!checkOldPassword) {
                 throw new AppError("A senha antiga não confere.")
             }
@@ -66,25 +63,14 @@ class UsersController { // 5 methods to each controller => index (GET), show (GE
             user.password = await hash(password, 8)
         }
 
-        if (is_admin !== undefined) {
-            if (!user.is_admin && user.id !== request.user.id) {
-                throw new AppError("Você não tem permissão para atualizar o campo 'is_admin'.", 403)
-            }
-
-            user.is_admin = is_admin
-        } else {
-            user.is_admin = user.is_admin
-        }  
-        
-        await database.run(`
-        UPDATE users SET
-        name = ?,
-        email = ?, 
-        password = ?,
-        is_admin = ?,
-        updated_at = DATETIME('now')
-        WHERE id = ?`, 
-        [user.name, user.email, user.password, user.is_admin, user_id])
+        await knex("users")
+            .where({ id: user_id })
+            .update({
+                name: user.name,
+                email: user.email,
+                password: user.password,
+                updated_at: knex.fn.now(),
+            });
 
         return response.json()
     }
