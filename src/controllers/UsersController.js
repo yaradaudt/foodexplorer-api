@@ -8,7 +8,7 @@ function validatePasswordLength(password) {
     }
 }
 
-class UsersController { // 5 methods to each controller => index (GET), show (GET), Create (POST), Update (PUT), delete (DELETE).
+class UsersController {
     async create(request, response) {
         const { name, email, password } = request.body
 

@@ -1,4 +1,5 @@
 const knex = require("../database/knex")
+const AppError = require("../utils/AppError")
 
 class OrdersController {
     async create(request, response) {
@@ -48,7 +49,7 @@ class OrdersController {
             }
 
             if (!order) {
-                return response.status(404).json({ message: "Pedido não encontrado" })
+                throw new AppError("Pedido não encontrado.")
             }
 
             const orderItems = await knex("order_items")
@@ -69,8 +70,7 @@ class OrdersController {
             const order = await knex("orders").where({ id }).first()
 
             if(!order){
-                return response.status(404).json({ message: "Pedido não encontrado." })
-
+                throw new AppError("Pedido não encontrado.")
             }
 
             await knex("orders").where({ id }).update({

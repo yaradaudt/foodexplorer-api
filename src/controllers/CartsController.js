@@ -1,4 +1,5 @@
 const knex = require("../database/knex")
+const AppError = require("../utils/AppError")
 
 class CartsController { // regular user only
     async create(request, response) {
@@ -14,7 +15,7 @@ class CartsController { // regular user only
 
             const dish = await knex("dishes").where({ id: dish_id }).first()
             if (!dish) {
-                return response.status(404).json({ message: "Prato não encontrado" })
+                throw new AppError("Carrinho não encontrado.")
             }
 
             await knex("cart_items").insert({
@@ -24,7 +25,7 @@ class CartsController { // regular user only
                 price: dish.price * quantity
             });
 
-            response.status(201).json({ message: "Item adicionado ao carrinho" });
+            response.status(201).json({ message: "Item adicionado ao carrinho" })
     }
 
     async update(request, response) {
@@ -35,13 +36,13 @@ class CartsController { // regular user only
         const cart = await knex("cart").where({ user_id }).first()
 
         if (!cart) {
-            return response.status(404).json({ message: "Carrinho não encontrado" })
+            throw new AppError("Carrinho não encontrado.")
         }
 
         const dish = await knex("dishes").where({ id: dish_id }).first();
             
         if (!dish) {
-            return response.status(404).json({ message: "Prato não encontrado" })
+            throw new AppError("Prato não encontrado.")
         }
 
         await knex("cart_items")
@@ -68,7 +69,7 @@ class CartsController { // regular user only
 
         const cart = await knex("cart").where({ user_id }).first()
             if (!cart) {
-                return response.status(404).json({ message: "Carrinho não encontrado." })
+                throw new AppError("Carrinho não encontrado.")
             }
 
             const cartItem = await knex("cart_items")
@@ -80,7 +81,7 @@ class CartsController { // regular user only
                     "cart_items.quantity",
                     "cart_items.price"
                 ])
-                .first() // garante que apenas o primeiro resultado irá aparecer.
+                .first()
 
             response.status(200).json(cartItem)
     }
@@ -89,7 +90,7 @@ class CartsController { // regular user only
         const user_id = request.user.id
         const cart = await knex("cart").where({ user_id }).first()
             if (!cart) {
-                return response.status(404).json({ message: "Carrinho não encontrado" })
+                throw new AppError("Carrinho não encontrado.")
             }
 
             const cartItems = await knex("cart_items")

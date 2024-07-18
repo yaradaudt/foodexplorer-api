@@ -1,4 +1,4 @@
-const knex = require("../database/knex");
+const knex = require("../database/knex")
 
 class DishesController {
   async create(request, response) {
@@ -65,12 +65,12 @@ class DishesController {
         }
       })
   
-      await knex("ingredients").insert(ingredientsInsert);
+      await knex("ingredients").insert(ingredientsInsert)
   
-      response.json({ message: "Prato atualizado com sucesso" });
+      response.json({ message: "Prato atualizado com sucesso" })
     } catch (error) {
-      console.error("Erro ao atualizar prato", error);
-      response.status(500).json({ error: "Erro ao atualizar o prato" });
+      console.error("Erro ao atualizar prato", error)
+      response.status(500).json({ error: "Erro ao atualizar o prato" })
     }
   }
 
@@ -93,9 +93,9 @@ class DishesController {
       
       const dishIdsWithIngredients = await knex("ingredients")
         .distinct("dish_id")
-        .whereIn("name", filterIngredients);
+        .whereIn("name", filterIngredients)
 
-      const dishIds = dishIdsWithIngredients.map(dish => dish.dish_id);
+      const dishIds = dishIdsWithIngredients.map(dish => dish.dish_id)
 
       if (title) {
         dishes = await knex("dishes")
@@ -137,21 +137,21 @@ class DishesController {
         .orderBy("title");
     }
 
-    const restaurantIngredients = await knex("ingredients");
+    const restaurantIngredients = await knex("ingredients")
 
     const dishesWithIngredients = dishes.map(dish => {
-      const dishIngredients = restaurantIngredients.filter(ingredient => ingredient.dish_id === dish.id);
+      const dishIngredients = restaurantIngredients.filter(ingredient => ingredient.dish_id === dish.id)
 
       return {
         ...dish,
         ingredients: dishIngredients
-      };
-    });
+      }
+    })
 
-    return response.json(dishesWithIngredients);
+    return response.json(dishesWithIngredients)
   } catch (error) {
-    console.error("Erro ao listar pratos", error);
-    response.status(500).json({ error: "Erro ao listar os pratos" });
+    console.error("Erro ao listar pratos", error)
+    response.status(500).json({ error: "Erro ao listar os pratos" })
   }
 }
 }

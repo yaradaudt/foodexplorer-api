@@ -31,7 +31,7 @@ class FavoritesController {
                 return response.status(200).json(favorites);
             } catch (error) {
               console.error(error);
-              return response.status(500).json({ message: "Erro ao listar os favoritos." });
+              return response.status(500).json({ message: "Erro ao listar os favoritos." })
             }
     }
 
