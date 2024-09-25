@@ -13,11 +13,13 @@ const upload = multer(uploadConfig.MULTER)
 const dishesController = new DishesController()
 const imagesController = new ImagesController()
 
-dishesRoutes.get("/", dishesController.index)//all including non authenticated since dishes routes are like a menu
-dishesRoutes.post("/", ensureAuthenticated, verifyUserAuthorization("admin"), dishesController.create)//admin
-dishesRoutes.delete("/:id", ensureAuthenticated, verifyUserAuthorization("admin"), dishesController.delete)//admin
-dishesRoutes.put("/:id", ensureAuthenticated, verifyUserAuthorization("admin"), dishesController.update)//admin
-dishesRoutes.get("/:id", dishesController.show)//all
-dishesRoutes.patch("/image/:id", ensureAuthenticated, verifyUserAuthorization("admin"), upload.single("image"), imagesController.update)
+dishesRoutes.use(ensureAuthenticated)
+
+dishesRoutes.get("/", dishesController.index)
+dishesRoutes.post("/", verifyUserAuthorization("admin"), dishesController.create)//admin
+dishesRoutes.delete("/:id", verifyUserAuthorization("admin"), dishesController.delete)//admin
+dishesRoutes.put("/:id", verifyUserAuthorization("admin"), dishesController.update)//admin
+dishesRoutes.get("/:id", dishesController.show)
+dishesRoutes.patch("/image/:id", verifyUserAuthorization("admin"), upload.single("image"), imagesController.update)
 
 module.exports = dishesRoutes
