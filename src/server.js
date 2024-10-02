@@ -7,10 +7,11 @@ const express = require("express")
 const routes = require("./routes")
 
 const app = express()
-app.use(cors())
 app.use(express.json())
 
 app.use("/files", express.static(uploadConfig.UPLOADS_FOLDER))
+
+app.use(cors())
 
 app.use(routes)
 
@@ -21,10 +22,13 @@ app.use((error, request, response, next) => {
             message: error.message
         })
     }
-        return response.status(500).json({
-            status: "error",
-            message: "Internal server error",
-        })
+
+    console.error(error)
+
+    return response.status(500).json({
+        status: "error",
+        message: "Internal server error",
+    })
 })
 
 const PORT = 3333
