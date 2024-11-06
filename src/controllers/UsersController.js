@@ -10,7 +10,7 @@ function validatePasswordLength(password) {
 
 class UsersController {
     async create(request, response) {
-        const { name, email, password } = request.body
+        const { name, email, password, role } = request.body
 
         const checkUserExists = await knex("users").where({ email })
 
@@ -22,7 +22,11 @@ class UsersController {
 
         const hashedPassword = await hash(password, 8)
 
-        await knex("users").insert({ name, email, password: hashedPassword })
+        await knex("users").insert({ 
+            name, 
+            email, 
+            password: hashedPassword,
+            role: role || "customer" })
 
         return response.status(201).json()
     }
