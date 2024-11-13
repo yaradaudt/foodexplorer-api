@@ -5,11 +5,13 @@ class DishesController {
     const { title, description, category, price, image, ingredients } = request.body
     const user_id = request.user.id
 
+    const formattedPrice = parseFloat(price).toFixed(2);
+
     const [dish_id] = await knex("dishes").insert({
       title,
       description,
       category,
-      price,
+      price: formattedPrice,
       image,
       user_id
     })
@@ -24,13 +26,18 @@ class DishesController {
 
     await knex("ingredients").insert(ingredientsInsert)
 
-    response.json()
+    response.json({ id: dish_id })
   }
 
   async show(request, response) {
     const { id } = request.params
 
     const dish = await knex("dishes").where({ id }).first()
+
+    if(dish) {
+      dish.price = parseFloat(dish.price).toFixed(2);
+    }
+
     const ingredients = await knex("ingredients").where({ dish_id: id }).orderBy("name")
 
     return response.json({
@@ -44,12 +51,14 @@ class DishesController {
       const { id } = request.params
       const { title, description, category, price, image, ingredients } = request.body
       const user_id = request.user.id
+
+      const formattedPrice = parseFloat(price).toFixed(2);
   
       await knex("dishes").where({ id }).update({
         title,
         description,
         category,
-        price,
+        price: formattedPrice,
         image,
         user_id,
         updated_at: knex.fn.now()
@@ -84,77 +93,58 @@ class DishesController {
   
   async index(request, response) {
     try {
-    const { title, ingredients } = request.query
+    const { title, ingredients, category } = request.query
 
-    let dishes
+    let dishesQuery = knex("dishes")
+      .select([
+        "dishes.id",
+        "dishes.title",
+        "dishes.description",
+        "dishes.category",
+        "dishes.price",
+        "dishes.image"
+      ])
+        .orderBy("dishes.title")
 
-    if(ingredients) {
-      const filterIngredients = ingredients.split(',').map(ingredient => ingredient.trim())
-      
-      const dishIdsWithIngredients = await knex("ingredients")
-        .distinct("dish_id")
-        .whereIn("name", filterIngredients)
+        if(category) {
+          dishesQuery = dishesQuery.where("category", category)
+        }
 
-      const dishIds = dishIdsWithIngredients.map(dish => dish.dish_id)
+        if(title) {
+          dishesQuery = dishesQuery.whereLike("dishes.title", `%${title}%`)
+        }
 
-      if (title) {
-        dishes = await knex("dishes")
-          .select([
-            "dishes.id",
-            "dishes.title",
-            "dishes.description",
-            "dishes.category",
-            "dishes.price",
-            "dishes.image"
-          ])
-          .whereIn("dishes.id", dishIds)
-          .whereLike("dishes.title", `%${title}%`)
-          .orderBy("dishes.title");
-      } else {
-        dishes = await knex("dishes")
-          .select([
-            "dishes.id",
-            "dishes.title",
-            "dishes.description",
-            "dishes.category",
-            "dishes.price",
-            "dishes.image"
-          ])
-          .whereIn("dishes.id", dishIds)
-          .orderBy("dishes.title");
+        if(ingredients) {
+          const filterIngredients = ingredients.split(',').map(ingredient => ingredient.trim())
+
+          const dishIdsWithIngredients = await knex("ingredients")
+            .distinct("dish_id")
+            .whereIn("name", filterIngredients)
+          
+          const dishIds = dishIdsWithIngredients.map(dish => dish.dish_id)
+
+          dishesQuery = dishesQuery.whereIn("dishes.id", dishIds)
+        }
+
+        const dishes = await dishesQuery
+
+        const restaurantIngredients = await knex("ingredients")
+        
+        const dishesWithIngredients = dishes.map(dish => {
+          const dishIngredients = restaurantIngredients.filter(ingredient => ingredient.dish_id === dish.id)
+    
+          return {
+            ...dish,
+            ingredients: dishIngredients
+          }
+        })
+    
+        return response.json(dishesWithIngredients)
+      } catch (error) {
+        console.error("Erro ao listar pratos", error)
+        response.status(500).json({ error: "Erro ao listar os pratos" })
       }
-    } else {
-      dishes = await knex("dishes")
-        .select([
-          "dishes.id",
-          "dishes.title",
-          "dishes.description",
-          "dishes.category",
-          "dishes.price",
-          "dishes.image"
-        ])
-        .whereLike("title", `%${title}%`)
-        .orderBy("title");
     }
-
-    const restaurantIngredients = await knex("ingredients")
-
-    const dishesWithIngredients = dishes.map(dish => {
-      const dishIngredients = restaurantIngredients.filter(ingredient => ingredient.dish_id === dish.id)
-
-      return {
-        ...dish,
-        ingredients: dishIngredients
-      }
-    })
-
-    return response.json(dishesWithIngredients)
-  } catch (error) {
-    console.error("Erro ao listar pratos", error)
-    response.status(500).json({ error: "Erro ao listar os pratos" })
-  }
-}
-}
-
-module.exports = DishesController
-
+    }
+    
+    module.exports = DishesController
