@@ -115,23 +115,31 @@ class DishesController {
         }
 
         if(ingredients) {
-          const filterIngredients = ingredients.split(',').map(ingredient => ingredient.trim())
+          const filterIngredients = ingredients.split(',').map((ingredient) => ingredient.trim().toLowerCase())
 
           const dishIdsWithIngredients = await knex("ingredients")
             .distinct("dish_id")
             .whereIn("name", filterIngredients)
           
-          const dishIds = dishIdsWithIngredients.map(dish => dish.dish_id)
+          const dishIds = dishIdsWithIngredients.map((dish) => dish.dish_id)
+
+          if(dishIds.length > 0) {
+            dishesQuery = dishesQuery.whereIn("dishes.id", dishIds)
+          } else {
+            return response.json([])
+          }
 
           dishesQuery = dishesQuery.whereIn("dishes.id", dishIds)
+          console.log("Query ingredientes:", filterIngredients);
+
         }
 
         const dishes = await dishesQuery
 
         const restaurantIngredients = await knex("ingredients")
         
-        const dishesWithIngredients = dishes.map(dish => {
-          const dishIngredients = restaurantIngredients.filter(ingredient => ingredient.dish_id === dish.id)
+        const dishesWithIngredients = dishes.map((dish) => {
+          const dishIngredients = restaurantIngredients.filter((ingredient) => ingredient.dish_id === dish.id)
     
           return {
             ...dish,
