@@ -115,7 +115,7 @@ Você também pode executar o projeto localmente. Siga os passos abaixo:
 
 ## 📝 Licença
 
-Este projeto está licenciado sob a licença MIT. Sinta-se à vontade para usá-lo, estudá-lo e adaptá-lo conforme necessário. Para mais informações, consulte o arquivo [LICENSE](./LICENSE).
+Este projeto está licenciado sob a licença MIT.
 
 ---
 
