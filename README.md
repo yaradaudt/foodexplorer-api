@@ -4,7 +4,7 @@
 
 O **FoodExplorer** é um cardápio digital para um restaurante fictício, desenvolvido como parte do desafio final da formação Full Stack da Rocketseat.  
 
-Composto por um front-end que consome sua própria API, o FoodExplorer oferece funcionalidades para navegação, seleção de pratos, pesquisa e gerenciamento de pedidos.  
+Composto por um [Front-end](https://github.com/yaradaudt/foodexplorer_app) que consome sua própria API, o FoodExplorer oferece funcionalidades para navegação, seleção de pratos, pesquisa e gerenciamento de pedidos.  
 
 Este repositório contém o **back-end** do projeto, incluindo a lógica de tabelas e armazenamento de dados, além de ferramentas para suportar todas as funcionalidades.
 
